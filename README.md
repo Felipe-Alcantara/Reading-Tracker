@@ -1,2 +1,47 @@
-# Reading-Tracker
-Tagline (1 linha) Reading-Tracker — registre sessões de leitura, acompanhe páginas × tempo e visualize sua produtividade com um heatmap estilo GitHub.  Descrição curta (para o topo do README) Reading-Tracker é um PWA leve e mobile-first que permite registrar início/fim de sessões de leitura, informar páginas lidas e acompanhar métricas de produtividade (páginas/minuto, tempo total, médias diárias). Os dados ficam salvos no navegador (localStorage) e são exibidos em um heatmap semelhante ao do GitHub, facilitando comparar dias e identificar padrões.  Descrição completa (para seção “About” / apresentação do projeto) Reading-Tracker é uma aplicação web simples e focada em usabilidade para leitura pessoal. Foi projetada para ser usada rapidamente no celular: ao iniciar uma sessão, o usuário clica em “Iniciar”, lê e, ao terminar, informa quantas páginas foram lidas — o site calcula automaticamente a duração, a taxa páginas/minuto e agrega os dados por dia. O histórico é salvo localmente (sem login), o que garante privacidade e mínimo atrito. O diferencial visual é um heatmap estilo GitHub que mostra sua atividade ao longo do tempo, com tooltips que detalham minutos, páginas e produtividade daquele dia. Ideal como MVP para quem quer medir hábitos de leitura de forma prática, sem complicação.
+# Reading Tracker 📚
+
+Um Progressive Web App (PWA) mobile-first para rastrear sessões de leitura, visualizar progresso e manter a consistência.
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+
+## Funcionalidades
+
+- **Cronômetro de Leitura**: Inicie e pare sessões de leitura facilmente.
+- **Registro de Páginas**: Ao finalizar, registre quantas páginas leu e adicione notas.
+- **Heatmap de Consistência**: Visualize seus dias de leitura em um gráfico estilo GitHub.
+- **Dashboard**: Métricas de velocidade (páginas/minuto), total de tempo e páginas lidas.
+- **Offline First**: Funciona offline (PWA).
+- **Dados Locais**: Seus dados ficam salvos no seu navegador (LocalStorage).
+
+## Tecnologias
+
+- React + Vite
+- Tailwind CSS
+- react-calendar-heatmap
+- date-fns
+- uuid
+
+## Como Rodar Localmente
+
+1. Instale as dependências:
+   ```bash
+   npm install
+   ```
+
+2. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
+
+3. Abra o navegador no endereço indicado (geralmente `http://localhost:5173`).
+
+## Estrutura do Projeto
+
+- `src/components`: Componentes React (Timer, Dashboard, Heatmap, etc).
+- `src/services`: Lógica de armazenamento (LocalStorage).
+- `src/utils.js`: Funções auxiliares de cálculo de tempo e formatação.
+- `src/data`: Gerador de dados de exemplo.
+
+## PWA
+
+O aplicativo é configurado como um PWA. Em dispositivos móveis, você pode usar a opção "Adicionar à Tela Inicial" do navegador para instalar o app como se fosse nativo.
