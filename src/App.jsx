@@ -8,6 +8,7 @@ import SessionTimer from './components/SessionTimer';
 import SessionForm from './components/SessionForm';
 import HeatmapView from './components/HeatmapView';
 import Dashboard from './components/Dashboard';
+import SessionList from './components/SessionList';
 import { StorageService } from './services/StorageService';
 import { calculateDuration, calculatePagesPerMin } from './utils';
 import { generateSampleData } from './data/sample-data';
@@ -18,6 +19,7 @@ function App() {
   const [currentSessionStart, setCurrentSessionStart] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [pendingSession, setPendingSession] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -147,72 +149,91 @@ function App() {
     }
   };
 
+  const handleDeleteSession = (sessionId) => {
+    if (confirm('Tem certeza que deseja excluir esta sessão?')) {
+      // Implement delete in StorageService ideally, but for now direct update
+      const newSessions = sessions.filter(s => s.id !== sessionId);
+      StorageService.importData(newSessions); // Re-save all (inefficient but works for local storage)
+      setSessions(newSessions);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <Header />
+    <div className="h-[100dvh] bg-gray-50 flex flex-col overflow-hidden">
+      <Header onToggleHistory={() => setShowHistory(!showHistory)} isHistoryOpen={showHistory} />
       
-      <main className="container mx-auto px-4 py-6 max-w-2xl">
-        <SessionTimer 
-          isRecording={isRecording} 
-          startTime={currentSessionStart}
-          onStart={handleStart}
-          onStop={handleStop}
-        />
+      <div className="flex-1 flex overflow-hidden relative">
+        <main className={`flex-1 overflow-y-auto transition-all duration-300 ${showHistory ? 'mr-0' : ''}`}>
+           <div className="container mx-auto px-4 py-6 max-w-2xl">
+            <SessionTimer 
+              isRecording={isRecording} 
+              startTime={currentSessionStart}
+              onStart={handleStart}
+              onStop={handleStop}
+            />
 
-        <Dashboard sessions={sessions} />
-        
-        <HeatmapView sessions={sessions} />
-
-        {/* Data Management */}
-        <div className="mt-12 p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <Database className="w-5 h-5 text-brand-600" />
-                Gerenciamento de Dados
-            </h3>
+            <Dashboard sessions={sessions} />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                <button 
-                    onClick={handleExport}
-                    className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors border border-gray-200"
-                >
-                    <Download className="w-4 h-4" />
-                    Exportar Backup (JSON)
-                </button>
+            <HeatmapView sessions={sessions} />
+
+            {/* Data Management */}
+            <div className="mt-12 p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <Database className="w-5 h-5 text-brand-600" />
+                    Gerenciamento de Dados
+                </h3>
                 
-                <button 
-                    onClick={triggerImport}
-                    className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors border border-gray-200"
-                >
-                    <Upload className="w-4 h-4" />
-                    Importar Backup
-                </button>
-                <input 
-                    type="file" 
-                    ref={fileInputRef}
-                    onChange={handleImport}
-                    className="hidden"
-                    accept=".json"
-                />
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                    <button 
+                        onClick={handleExport}
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors border border-gray-200"
+                    >
+                        <Download className="w-4 h-4" />
+                        Exportar Backup (JSON)
+                    </button>
+                    
+                    <button 
+                        onClick={triggerImport}
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors border border-gray-200"
+                    >
+                        <Upload className="w-4 h-4" />
+                        Importar Backup
+                    </button>
+                    <input 
+                        type="file" 
+                        ref={fileInputRef}
+                        onChange={handleImport}
+                        className="hidden"
+                        accept=".json"
+                    />
+                </div>
 
-            <div className="border-t border-gray-100 pt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                 <button 
-                    onClick={loadSampleData}
-                    className="text-sm text-brand-600 hover:text-brand-700 underline"
-                >
-                    Carregar dados de exemplo
-                </button>
+                <div className="border-t border-gray-100 pt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <button 
+                        onClick={loadSampleData}
+                        className="text-sm text-brand-600 hover:text-brand-700 underline"
+                    >
+                        Carregar dados de exemplo
+                    </button>
 
-                <button 
-                    onClick={handleClearData}
-                    className="flex items-center gap-1 text-sm text-red-500 hover:text-red-600 px-3 py-1 rounded hover:bg-red-50 transition-colors"
-                >
-                    <Trash2 className="w-4 h-4" />
-                    Limpar tudo
-                </button>
+                    <button 
+                        onClick={handleClearData}
+                        className="flex items-center gap-1 text-sm text-red-500 hover:text-red-600 px-3 py-1 rounded hover:bg-red-50 transition-colors"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                        Limpar tudo
+                    </button>
+                </div>
             </div>
-        </div>
-      </main>
+           </div>
+        </main>
+
+        <aside className={`transition-all duration-300 bg-white border-l border-gray-200 shadow-xl z-20 ${showHistory ? 'w-80 sm:w-96 translate-x-0' : 'w-0 translate-x-full opacity-0'}`}>
+             <div className="w-80 sm:w-96 h-full overflow-hidden">
+                <SessionList sessions={sessions} onDelete={handleDeleteSession} />
+             </div>
+        </aside>
+      </div>
 
       {showForm && pendingSession && (
         <SessionForm 
