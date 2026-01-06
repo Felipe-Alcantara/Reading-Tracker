@@ -14,8 +14,8 @@ export default function HeatmapView({ sessions }) {
   const startDate = subDays(today, 120);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 overflow-hidden">
-      <h3 className="text-lg font-bold text-gray-800 mb-4">Consistência de Leitura</h3>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Consistência de Leitura</h3>
       
       <div className="w-full overflow-x-auto">
         <div className="min-w-[600px]"> {/* Force min width for mobile scrolling */}

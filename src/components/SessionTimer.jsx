@@ -20,12 +20,12 @@ export default function SessionTimer({ onStart, onStop, isRecording, startTime }
   }, [isRecording, startTime]);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 mb-6 text-center border border-gray-100">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 mb-6 text-center border border-gray-100 dark:border-gray-700">
       <div className="mb-4">
-        <div className="text-gray-500 text-sm uppercase tracking-wider font-semibold mb-1">
+        <div className="text-gray-500 dark:text-gray-400 text-sm uppercase tracking-wider font-semibold mb-1">
           {isRecording ? 'Sessão em andamento' : 'Pronto para ler?'}
         </div>
-        <div className={`text-5xl font-mono font-bold tabular-nums ${isRecording ? 'text-brand-600' : 'text-gray-300'}`}>
+        <div className={`text-5xl font-mono font-bold tabular-nums ${isRecording ? 'text-brand-600 dark:text-brand-500' : 'text-gray-300 dark:text-gray-600'}`}>
           {isRecording ? formatDuration(elapsed) : '00m'}
         </div>
       </div>

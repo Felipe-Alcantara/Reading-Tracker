@@ -10,13 +10,13 @@ export default function Dashboard({ sessions }) {
   const avgPpm = totalMinutes > 0 ? (totalPages / totalMinutes).toFixed(1) : 0;
 
   const StatCard = ({ icon: Icon, label, value, subtext, color }) => (
-    <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col">
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col">
       <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-3 ${color}`}>
         <Icon className="w-5 h-5 text-white" />
       </div>
-      <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">{label}</span>
-      <span className="text-2xl font-bold text-gray-900 mt-1">{value}</span>
-      {subtext && <span className="text-xs text-gray-400 mt-1">{subtext}</span>}
+      <span className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">{label}</span>
+      <span className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{value}</span>
+      {subtext && <span className="text-xs text-gray-400 dark:text-gray-500 mt-1">{subtext}</span>}
     </div>
   );
 

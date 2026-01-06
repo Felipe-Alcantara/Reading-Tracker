@@ -20,11 +20,19 @@ function App() {
   const [showForm, setShowForm] = useState(false);
   const [pendingSession, setPendingSession] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     const loaded = StorageService.getSessions();
     setSessions(loaded);
+    
+    // Load dark mode preference
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(savedDarkMode);
+    if (savedDarkMode) {
+      document.documentElement.classList.add('dark');
+    }
   }, []);
 
   const handleStart = () => {
@@ -164,9 +172,25 @@ function App() {
     setSessions(newSessions);
   };
 
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', newDarkMode.toString());
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
   return (
-    <div className="h-[100dvh] bg-gray-50 flex flex-col overflow-hidden">
-      <Header onToggleHistory={() => setShowHistory(!showHistory)} isHistoryOpen={showHistory} />
+    <div className="h-[100dvh] bg-gray-50 dark:bg-gray-900 flex flex-col overflow-hidden">
+      <Header 
+        onToggleHistory={() => setShowHistory(!showHistory)} 
+        isHistoryOpen={showHistory}
+        darkMode={darkMode}
+        onToggleDarkMode={toggleDarkMode}
+      />
       
       <div className="flex-1 flex overflow-hidden relative">
         <main className={`flex-1 overflow-y-auto transition-all duration-300 ${showHistory ? 'mr-0' : ''}`}>
@@ -183,16 +207,16 @@ function App() {
             <HeatmapView sessions={sessions} />
 
             {/* Data Management */}
-            <div className="mt-12 p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <Database className="w-5 h-5 text-brand-600" />
+            <div className="mt-12 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                    <Database className="w-5 h-5 text-brand-600 dark:text-brand-500" />
                     Gerenciamento de Dados
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                     <button 
                         onClick={handleExport}
-                        className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors border border-gray-200"
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
                     >
                         <Download className="w-4 h-4" />
                         Exportar Backup (JSON)
@@ -200,7 +224,7 @@ function App() {
                     
                     <button 
                         onClick={triggerImport}
-                        className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors border border-gray-200"
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
                     >
                         <Upload className="w-4 h-4" />
                         Importar Backup
@@ -214,17 +238,17 @@ function App() {
                     />
                 </div>
 
-                <div className="border-t border-gray-100 pt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="border-t border-gray-100 dark:border-gray-700 pt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <button 
                         onClick={loadSampleData}
-                        className="text-sm text-brand-600 hover:text-brand-700 underline"
+                        className="text-sm text-brand-600 dark:text-brand-500 hover:text-brand-700 dark:hover:text-brand-400 underline"
                     >
                         Carregar dados de exemplo
                     </button>
 
                     <button 
                         onClick={handleClearData}
-                        className="flex items-center gap-1 text-sm text-red-500 hover:text-red-600 px-3 py-1 rounded hover:bg-red-50 transition-colors"
+                        className="flex items-center gap-1 text-sm text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-500 px-3 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                     >
                         <Trash2 className="w-4 h-4" />
                         Limpar tudo
@@ -234,7 +258,7 @@ function App() {
            </div>
         </main>
 
-        <aside className={`transition-all duration-300 bg-white border-l border-gray-200 shadow-xl z-20 ${showHistory ? 'w-80 sm:w-96 translate-x-0' : 'w-0 translate-x-full opacity-0'}`}>
+        <aside className={`transition-all duration-300 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 shadow-xl z-20 ${showHistory ? 'w-80 sm:w-96 translate-x-0' : 'w-0 translate-x-full opacity-0'}`}>
              <div className="w-80 sm:w-96 h-full overflow-hidden">
                 <SessionList sessions={sessions} onDelete={handleDeleteSession} onUpdate={handleUpdateSession} />
              </div>
