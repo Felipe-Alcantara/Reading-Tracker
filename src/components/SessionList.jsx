@@ -1,9 +1,29 @@
-import React from 'react';
-import { Clock, BookOpen, Calendar, AlignLeft, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Clock, BookOpen, Calendar, AlignLeft, Trash2, Edit2, Save, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { formatDuration } from '../utils';
 
-export default function SessionList({ sessions, onDelete }) {
+export default function SessionList({ sessions, onDelete, onUpdate }) {
+  const [editingId, setEditingId] = useState(null);
+  const [editNotes, setEditNotes] = useState('');
+
+  const handleStartEdit = (session) => {
+    setEditingId(session.id);
+    setEditNotes(session.notes || '');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditNotes('');
+  };
+
+  const handleSaveEdit = (session) => {
+    if (onUpdate) {
+        onUpdate(session.id, { ...session, notes: editNotes });
+    }
+    setEditingId(null);
+  };
+
   if (sessions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-gray-400 text-center">
@@ -63,13 +83,63 @@ export default function SessionList({ sessions, onDelete }) {
               </div>
             </div>
 
-            {session.notes && (
-              <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600 italic mb-2">
-                "{session.notes}"
-              </div>
+            {editingId === session.id ? (
+                <div className="mt-3 mb-2">
+                    <textarea 
+                        value={editNotes}
+                        onChange={(e) => setEditNotes(e.target.value)}
+                        className="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none resize-none h-20"
+                        placeholder="Adicione suas notas..."
+                        autoFocus
+                    />
+                    <div className="flex justify-end gap-2 mt-2">
+                        <button 
+                            onClick={handleCancelEdit}
+                            className="p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                            title="Cancelar"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                        <button 
+                            onClick={() => handleSaveEdit(session)}
+                            className="p-1 text-brand-600 hover:text-brand-700 hover:bg-brand-50 rounded"
+                            title="Salvar"
+                        >
+                            <Save className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <div className="group relative">
+                    {session.notes ? (
+                        <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600 italic mb-2 pr-8 break-words whitespace-pre-wrap">
+                            "{session.notes}"
+                        </div>
+                    ) : (
+                        <div className="mb-2">
+                             <button 
+                                onClick={() => handleStartEdit(session)} 
+                                className="text-xs text-gray-400 hover:text-brand-600 flex items-center gap-1 py-1"
+                             >
+                                <Edit2 className="w-3 h-3" />
+                                Adicionar nota
+                             </button>
+                        </div>
+                    )}
+                    
+                    {session.notes && (
+                        <button 
+                            onClick={() => handleStartEdit(session)}
+                            className="absolute top-2 right-2 p-1 text-gray-400 hover:text-brand-600 hover:bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Editar nota"
+                        >
+                            <Edit2 className="w-3 h-3" />
+                        </button>
+                    )}
+                </div>
             )}
 
-            {onDelete && (
+            {onDelete && editingId !== session.id && (
                 <div className="pt-2 border-t border-gray-50 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                      <button 
                         onClick={() => onDelete(session.id)} 

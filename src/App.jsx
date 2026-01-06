@@ -158,6 +158,12 @@ function App() {
     }
   };
 
+  const handleUpdateSession = (sessionId, updatedSession) => {
+    const newSessions = sessions.map(s => s.id === sessionId ? updatedSession : s);
+    StorageService.importData(newSessions);
+    setSessions(newSessions);
+  };
+
   return (
     <div className="h-[100dvh] bg-gray-50 flex flex-col overflow-hidden">
       <Header onToggleHistory={() => setShowHistory(!showHistory)} isHistoryOpen={showHistory} />
@@ -230,7 +236,7 @@ function App() {
 
         <aside className={`transition-all duration-300 bg-white border-l border-gray-200 shadow-xl z-20 ${showHistory ? 'w-80 sm:w-96 translate-x-0' : 'w-0 translate-x-full opacity-0'}`}>
              <div className="w-80 sm:w-96 h-full overflow-hidden">
-                <SessionList sessions={sessions} onDelete={handleDeleteSession} />
+                <SessionList sessions={sessions} onDelete={handleDeleteSession} onUpdate={handleUpdateSession} />
              </div>
         </aside>
       </div>
