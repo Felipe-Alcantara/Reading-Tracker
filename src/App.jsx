@@ -59,11 +59,20 @@ function App() {
       notes
     };
 
-    const updated = StorageService.saveSession(newSession);
-    setSessions(updated);
-    setShowForm(false);
-    setPendingSession(null);
-    setCurrentSessionStart(null);
+    const result = StorageService.saveSession(newSession);
+    
+    if (result.success) {
+      setSessions(result.data);
+      setShowForm(false);
+      setPendingSession(null);
+      setCurrentSessionStart(null);
+    } else {
+      if (result.error === 'STORAGE_FULL') {
+        alert('Atenção: O armazenamento do navegador está cheio!\n\nPor favor, use a opção "Exportar Backup" para salvar seus dados e depois "Limpar tudo" para liberar espaço.');
+      } else {
+        alert('Erro ao salvar a sessão. Tente novamente.');
+      }
+    }
   };
 
   const handleCancelSession = () => {
@@ -108,9 +117,15 @@ function App() {
         const data = JSON.parse(e.target.result);
         if (Array.isArray(data)) {
           if (confirm('Isso substituirá seus dados atuais pelos dados do arquivo. Deseja continuar?')) {
-            StorageService.importData(data);
-            setSessions(data);
-            alert('Dados importados com sucesso!');
+            const result = StorageService.importData(data);
+            if (result.success) {
+                setSessions(data);
+                alert('Dados importados com sucesso!');
+            } else if (result.error === 'STORAGE_FULL') {
+                alert('Erro: Não há espaço suficiente no navegador para importar estes dados.');
+            } else {
+                alert('Erro desconhecido ao salvar os dados.');
+            }
           }
         } else {
           alert('Arquivo inválido: o formato deve ser uma lista de sessões.');

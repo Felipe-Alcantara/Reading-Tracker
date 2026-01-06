@@ -16,10 +16,13 @@ export const StorageService = {
       const sessions = StorageService.getSessions();
       const updatedSessions = [...sessions, session];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSessions));
-      return updatedSessions;
+      return { success: true, data: updatedSessions };
     } catch (error) {
       console.error('Error saving session:', error);
-      return [];
+      if (error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+          return { success: false, error: 'STORAGE_FULL' };
+      }
+      return { success: false, error: 'UNKNOWN' };
     }
   },
 
@@ -31,9 +34,12 @@ export const StorageService = {
   importData: (data) => {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        return true;
-    } catch (e) {
-        return false;
+        return { success: true };
+    } catch (error) {
+        if (error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+            return { success: false, error: 'STORAGE_FULL' };
+        }
+        return { success: false, error: 'UNKNOWN' };
     }
   }
 };
