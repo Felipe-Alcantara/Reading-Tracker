@@ -9,6 +9,7 @@ import SessionForm from './components/SessionForm';
 import HeatmapView from './components/HeatmapView';
 import Dashboard from './components/Dashboard';
 import SessionList from './components/SessionList';
+import BookStats from './components/BookStats';
 import { StorageService } from './services/StorageService';
 import { calculateDuration, calculatePagesPerMin } from './utils';
 import { generateSampleData } from './data/sample-data';
@@ -55,7 +56,7 @@ function App() {
   };
 
   const handleSaveSession = (formData) => {
-    const { pages, notes } = formData;
+    const { pages, notes, book } = formData;
     const { start, end, duration_min } = pendingSession;
 
     const newSession = {
@@ -66,6 +67,7 @@ function App() {
       duration_min,
       pages,
       pagesPerMin: calculatePagesPerMin(pages, duration_min),
+      book,
       notes
     };
 
@@ -172,6 +174,8 @@ function App() {
     setSessions(newSessions);
   };
 
+  const availableBooks = Array.from(new Set(sessions.map(s => s.book).filter(Boolean)));
+
   const toggleDarkMode = () => {
     const newDarkMode = !darkMode;
     setDarkMode(newDarkMode);
@@ -205,6 +209,8 @@ function App() {
             <Dashboard sessions={sessions} />
             
             <HeatmapView sessions={sessions} />
+
+            <BookStats sessions={sessions} />
 
             {/* Data Management */}
             <div className="mt-12 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
@@ -270,6 +276,7 @@ function App() {
           sessionData={pendingSession}
           onSave={handleSaveSession}
           onCancel={handleCancelSession}
+          availableBooks={availableBooks}
         />
       )}
     </div>

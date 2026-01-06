@@ -1,6 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
 import { subDays, format } from 'date-fns';
 
+const sampleBooks = [
+  'Dom Casmurro',
+  '1984',
+  'Sapiens',
+  'Clean Code',
+  'O Hobbit'
+];
+
 const generateRandomSession = (daysAgo) => {
   const date = subDays(new Date(), daysAgo);
   const dateStr = format(date, 'yyyy-MM-dd');
@@ -20,7 +28,8 @@ const generateRandomSession = (daysAgo) => {
     duration_min: duration,
     pages: pages,
     pagesPerMin: parseFloat((pages / duration).toFixed(2)),
-    notes: Math.random() > 0.7 ? "Sessão produtiva!" : ""
+    notes: Math.random() > 0.7 ? "Sessão produtiva!" : "",
+    book: sampleBooks[Math.floor(Math.random() * sampleBooks.length)]
   };
 };
 

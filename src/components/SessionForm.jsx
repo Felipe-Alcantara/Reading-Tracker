@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Save, X } from 'lucide-react';
 import { formatDuration } from '../utils';
 
-export default function SessionForm({ sessionData, onSave, onCancel }) {
+export default function SessionForm({ sessionData, onSave, onCancel, availableBooks = [] }) {
   const [pages, setPages] = useState('');
+  const [book, setBook] = useState('');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
 
@@ -16,8 +17,14 @@ export default function SessionForm({ sessionData, onSave, onCancel }) {
       return;
     }
 
+    if (!book.trim()) {
+      setError('Escolha ou digite o nome do livro.');
+      return;
+    }
+
     onSave({
       pages: pagesNum,
+      book: book.trim(),
       notes
     });
   };
@@ -33,6 +40,24 @@ export default function SessionForm({ sessionData, onSave, onCancel }) {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Livro
+            </label>
+            <input
+              list="books-list"
+              value={book}
+              onChange={(e) => setBook(e.target.value)}
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              placeholder="Digite ou selecione o livro"
+            />
+            <datalist id="books-list">
+              {availableBooks.map((name) => (
+                <option key={name} value={name} />
+              ))}
+            </datalist>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Quantas páginas você leu?

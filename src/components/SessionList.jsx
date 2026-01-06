@@ -61,6 +61,8 @@ export default function SessionList({ sessions, onDelete, onUpdate }) {
               </div>
             </div>
 
+            <div className="text-sm text-gray-700 dark:text-gray-200 mb-2 font-semibold">{session.book || 'Livro não informado'}</div>
+
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
