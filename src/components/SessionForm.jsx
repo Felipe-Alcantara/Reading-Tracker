@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Save, X } from 'lucide-react';
 import { formatDuration } from '../utils';
 
-export default function SessionForm({ sessionData, onSave, onCancel, availableBooks = [] }) {
+export default function SessionForm({ sessionData, onSave, onCancel, availableBooks = [], selectedBook = '' }) {
   const [pages, setPages] = useState('');
-  const [book, setBook] = useState('');
+  const [book, setBook] = useState(selectedBook);
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
 
@@ -48,7 +48,8 @@ export default function SessionForm({ sessionData, onSave, onCancel, availableBo
               list="books-list"
               value={book}
               onChange={(e) => setBook(e.target.value)}
-              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              disabled={!!selectedBook}
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-60 disabled:cursor-not-allowed"
               placeholder="Digite ou selecione o livro"
             />
             <datalist id="books-list">

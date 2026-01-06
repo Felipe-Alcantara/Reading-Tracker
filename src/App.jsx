@@ -10,6 +10,7 @@ import HeatmapView from './components/HeatmapView';
 import Dashboard from './components/Dashboard';
 import SessionList from './components/SessionList';
 import BookStats from './components/BookStats';
+import BookSelector from './components/BookSelector';
 import { StorageService } from './services/StorageService';
 import { calculateDuration, calculatePagesPerMin } from './utils';
 import { generateSampleData } from './data/sample-data';
@@ -22,6 +23,8 @@ function App() {
   const [pendingSession, setPendingSession] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [showBookSelector, setShowBookSelector] = useState(false);
+  const [currentBook, setCurrentBook] = useState(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -37,8 +40,18 @@ function App() {
   }, []);
 
   const handleStart = () => {
+    setShowBookSelector(true);
+  };
+
+  const handleBookSelected = (book) => {
+    setCurrentBook(book);
+    setShowBookSelector(false);
     setIsRecording(true);
     setCurrentSessionStart(new Date().toISOString());
+  };
+
+  const handleCancelBookSelection = () => {
+    setShowBookSelector(false);
   };
 
   const handleStop = () => {
@@ -78,6 +91,7 @@ function App() {
       setShowForm(false);
       setPendingSession(null);
       setCurrentSessionStart(null);
+      setCurrentBook(null);
     } else {
       if (result.error === 'STORAGE_FULL') {
         alert('Atenção: O armazenamento do navegador está cheio!\n\nPor favor, use a opção "Exportar Backup" para salvar seus dados e depois "Limpar tudo" para liberar espaço.');
@@ -91,6 +105,7 @@ function App() {
     setShowForm(false);
     setPendingSession(null);
     setCurrentSessionStart(null);
+    setCurrentBook(null);
   };
 
   const loadSampleData = () => {
@@ -271,12 +286,21 @@ function App() {
         </aside>
       </div>
 
+      {showBookSelector && (
+        <BookSelector
+          availableBooks={availableBooks}
+          onSelect={handleBookSelected}
+          onCancel={handleCancelBookSelection}
+        />
+      )}
+
       {showForm && pendingSession && (
         <SessionForm 
           sessionData={pendingSession}
           onSave={handleSaveSession}
           onCancel={handleCancelSession}
           availableBooks={availableBooks}
+          selectedBook={currentBook}
         />
       )}
     </div>
