@@ -16,16 +16,19 @@ export const aggregateSessionsByDay = (sessions) => {
   const map = new Map();
 
   sessions.forEach(session => {
+    const rawDate = session?.date || (session?.start ? format(parseISO(session.start), 'yyyy-MM-dd') : null);
+    if (!rawDate) return;
+
     // Ensure we are working with the date part only for grouping
-    const dateKey = format(parseISO(session.date), 'yyyy-MM-dd');
+    const dateKey = format(parseISO(rawDate), 'yyyy-MM-dd');
     
     if (!map.has(dateKey)) {
       map.set(dateKey, { date: dateKey, count: 0, totalDuration: 0, sessions: 0 });
     }
     
     const entry = map.get(dateKey);
-    entry.count += session.pages;
-    entry.totalDuration += session.duration_min;
+    entry.count += session.pages || 0;
+    entry.totalDuration += session.duration_min || 0;
     entry.sessions += 1;
   });
 
