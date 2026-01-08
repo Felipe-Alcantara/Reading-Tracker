@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
-import { Clock, BookOpen, Calendar, AlignLeft, Trash2, Edit2, Save, X } from 'lucide-react';
+import { Clock, BookOpen, Calendar, AlignLeft, Trash2, Edit2, Save, X, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { formatDuration } from '../utils';
+import html2canvas from 'html2canvas';
+import ShareCard from './ShareCard';
+import ShareModal from './ShareModal';
 
 export default function SessionList({ sessions, onDelete, onUpdate }) {
   const [editingId, setEditingId] = useState(null);
   const [editNotes, setEditNotes] = useState('');
+  const [sharingSession, setSharingSession] = useState(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [imageBlob, setImageBlob] = useState(null);
+  const [currentCanvas, setCurrentCanvas] = useState(null);
 
   const handleStartEdit = (session) => {
     setEditingId(session.id);
@@ -22,6 +29,73 @@ export default function SessionList({ sessions, onDelete, onUpdate }) {
         onUpdate(session.id, { ...session, notes: editNotes });
     }
     setEditingId(null);
+  };
+
+  const handleShare = async (session) => {
+    setSharingSession(session);
+    
+    // Aguarda o próximo frame para garantir que o card foi renderizado
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    const cardElement = document.getElementById(`share-card-${session.id}`);
+    if (!cardElement) {
+      alert('Erro ao gerar o card. Tente novamente.');
+      setSharingSession(null);
+      return;
+    }
+
+    try {
+      const canvas = await html2canvas(cardElement, {
+        backgroundColor: null,
+        scale: 2,
+        logging: false,
+        useCORS: true,
+      });
+
+      setCurrentCanvas(canvas);
+      
+      // Converte canvas para blob
+      canvas.toBlob((blob) => {
+        setImageBlob(blob);
+        setShowShareModal(true);
+      }, 'image/png');
+    } catch (error) {
+      console.error('Erro ao gerar imagem:', error);
+      alert('Erro ao gerar o card. Tente novamente.');
+      setSharingSession(null);
+    }
+  };
+
+  const handleDownload = () => {
+    if (!imageBlob || !sharingSession) return;
+    
+    const url = URL.createObjectURL(imageBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `leitura-${sharingSession.book?.replace(/[^a-z0-9]/gi, '-').toLowerCase() || 'sessao'}-${format(new Date(sharingSession.start), 'dd-MM-yyyy')}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleCopyImage = async () => {
+    if (!imageBlob) throw new Error('Imagem não disponível');
+    
+    try {
+      const item = new ClipboardItem({ 'image/png': imageBlob });
+      await navigator.clipboard.write([item]);
+    } catch (error) {
+      console.error('Erro ao copiar imagem:', error);
+      throw error;
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowShareModal(false);
+    setSharingSession(null);
+    setImageBlob(null);
+    setCurrentCanvas(null);
   };
 
   if (sessions.length === 0) {
@@ -155,7 +229,15 @@ export default function SessionList({ sessions, onDelete, onUpdate }) {
             )}
 
             {onDelete && editingId !== session.id && (
-                <div className="pt-2 border-t border-gray-200 dark:border-gray-700 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-700 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+                     <button 
+                        onClick={() => handleShare(session)}
+                        className="flex items-center gap-1 text-xs text-brand-500 hover:text-brand-700 dark:hover:text-brand-400 px-2 py-1 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded transition-colors"
+                        title="Compartilhar sessão"
+                     >
+                        <Share2 className="w-3 h-3" />
+                        Compartilhar
+                     </button>
                      <button 
                         onClick={() => onDelete(session.id)} 
                         className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600 dark:hover:text-red-500 px-2 py-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
@@ -169,6 +251,23 @@ export default function SessionList({ sessions, onDelete, onUpdate }) {
           </div>
         ))}
       </div>
+
+      {/* Card invisível para renderização e captura */}
+      {sharingSession && (
+        <div className="fixed left-0 top-0 -translate-x-[650px] pointer-events-none">
+          <ShareCard session={sharingSession} />
+        </div>
+      )}
+
+      {/* Modal de compartilhamento */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={handleCloseModal}
+        onDownload={handleDownload}
+        onCopyImage={handleCopyImage}
+        imageBlob={imageBlob}
+        session={sharingSession}
+      />
     </div>
   );
 }
