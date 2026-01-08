@@ -25,14 +25,6 @@ export default function Dashboard({ sessions, onAddSession }) {
 
   return (
     <div className="mb-6">
-      <button
-        onClick={onAddSession}
-        className="w-full mb-6 bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white py-4 px-6 rounded-xl shadow-md flex items-center justify-center gap-3 transition-colors touch-manipulation group"
-      >
-        <PlusCircle className="w-6 h-6 group-active:scale-95 transition-transform" />
-        <span className="font-bold text-lg">Registrar Leitura</span>
-      </button>
-
       <div className="grid grid-cols-2 gap-4">
         <StatCard 
           icon={Book} 
@@ -60,6 +52,16 @@ export default function Dashboard({ sessions, onAddSession }) {
           color="bg-brand-500"
         />
       </div>
+
+      <button
+        type="button"
+        onClick={onAddSession}
+        className="fixed bottom-6 right-6 z-30 w-20 h-20 rounded-full bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white shadow-xl flex items-center justify-center transition-colors touch-manipulation"
+        aria-label="Registrar leitura"
+        title="Registrar leitura"
+      >
+        <PlusCircle className="w-10 h-10" />
+      </button>
     </div>
   );
 }
