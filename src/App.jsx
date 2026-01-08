@@ -109,17 +109,55 @@ function App() {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const data = JSON.parse(e.target.result);
-        if (Array.isArray(data)) {
-          if (confirm('Isso substituirá seus dados atuais pelos dados do arquivo. Deseja continuar?')) {
-            const result = StorageService.importData(data);
+        const importedData = JSON.parse(e.target.result);
+        if (Array.isArray(importedData)) {
+          // Função para verificar se duas sessões são duplicatas
+          const isDuplicate = (session1, session2) => {
+            // Compara por ID primeiro (mais confiável)
+            if (session1.id && session2.id && session1.id === session2.id) {
+              return true;
+            }
+            
+            // Compara por dados únicos (livro, data, páginas, tempo)
+            const sameBook = session1.book === session2.book;
+            const sameDate = session1.date === session2.date;
+            const samePages = (session1.pages === session2.pages) && 
+                             (session1.startPage === session2.startPage) && 
+                             (session1.endPage === session2.endPage);
+            const sameDuration = session1.duration_min === session2.duration_min;
+            
+            // Considera duplicata se todos os campos principais coincidem
+            return sameBook && sameDate && samePages && sameDuration;
+          };
+
+          // Filtra sessões novas (que não são duplicatas)
+          const newSessions = importedData.filter(imported => 
+            !sessions.some(existing => isDuplicate(imported, existing))
+          );
+
+          const duplicatesCount = importedData.length - newSessions.length;
+
+          if (newSessions.length === 0) {
+            alert('Nenhuma sessão nova encontrada. Todas as sessões do arquivo já existem no seu histórico.');
+            event.target.value = '';
+            return;
+          }
+
+          const message = duplicatesCount > 0
+            ? `Encontradas ${newSessions.length} sessões novas e ${duplicatesCount} duplicatas.\n\nDeseja adicionar as ${newSessions.length} sessões novas ao seu histórico?`
+            : `Encontradas ${newSessions.length} sessões novas.\n\nDeseja adicioná-las ao seu histórico?`;
+
+          if (confirm(message)) {
+            const mergedData = [...sessions, ...newSessions];
+            const result = StorageService.importData(mergedData);
+            
             if (result.success) {
-                setSessions(data);
-                alert('Dados importados com sucesso!');
+              setSessions(mergedData);
+              alert(`✅ Importação concluída!\n\n${newSessions.length} sessões adicionadas${duplicatesCount > 0 ? `\n${duplicatesCount} duplicatas ignoradas` : ''}`);
             } else if (result.error === 'STORAGE_FULL') {
-                alert('Erro: Não há espaço suficiente no navegador para importar estes dados.');
+              alert('Erro: Não há espaço suficiente no navegador para importar estes dados.');
             } else {
-                alert('Erro desconhecido ao salvar os dados.');
+              alert('Erro desconhecido ao salvar os dados.');
             }
           }
         } else {
