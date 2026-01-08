@@ -13,7 +13,7 @@ export default function Dashboard({ sessions, onAddSession }) {
     : 0;
 
   const StatCard = ({ icon: Icon, label, value, subtext, color }) => (
-    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col">
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow flex flex-col">
       <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-3 ${color}`}>
         <Icon className="w-5 h-5 text-white" />
       </div>

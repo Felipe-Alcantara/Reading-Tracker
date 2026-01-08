@@ -38,7 +38,7 @@ export default function SessionList({ sessions, onDelete, onUpdate }) {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 sticky top-0 z-10 flex items-center justify-between">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 sticky top-0 z-10 flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
            <AlignLeft className="w-5 h-5 text-brand-600 dark:text-brand-500" />
            Histórico
@@ -50,7 +50,7 @@ export default function SessionList({ sessions, onDelete, onUpdate }) {
       
       <div className="p-4 space-y-4 overflow-y-auto flex-1">
         {sortedSessions.map((session) => (
-          <div key={session.id} className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow group">
+          <div key={session.id} className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow group">
             <div className="flex justify-between items-start mb-3">
               <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <Calendar className="w-4 h-4" />
@@ -155,7 +155,7 @@ export default function SessionList({ sessions, onDelete, onUpdate }) {
             )}
 
             {onDelete && editingId !== session.id && (
-                <div className="pt-2 border-t border-gray-50 dark:border-gray-700 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-700 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                      <button 
                         onClick={() => onDelete(session.id)} 
                         className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600 dark:hover:text-red-500 px-2 py-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"

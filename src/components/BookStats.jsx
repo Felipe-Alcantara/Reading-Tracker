@@ -27,15 +27,15 @@ export default function BookStats({ sessions }) {
     .sort((a, b) => b.pages - a.pages);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 h-[600px] flex flex-col">
-      <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 h-[600px] flex flex-col">
+      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
         <BookOpen className="w-5 h-5 text-brand-600 dark:text-brand-500" />
         Estatísticas por Livro
       </h3>
 
       <div className="space-y-4 overflow-y-auto flex-1">
         {books.map((item) => (
-          <div key={item.book} className="p-4 rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+          <div key={item.book} className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
             <div className="flex justify-between items-start mb-2">
               <div>
                 <div className="text-base font-semibold text-gray-900 dark:text-white">{item.book}</div>

@@ -87,15 +87,15 @@ export default function HeatmapView({ sessions }) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 overflow-hidden h-[600px] flex flex-col">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 overflow-hidden h-[600px] flex flex-col">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-gray-800 dark:text-white">Consistência de Leitura</h3>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Consistência de Leitura</h3>
         
         {/* Navegação do mês */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2 w-64">
           <button
             onClick={goToPreviousMonth}
-            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
             aria-label="Mês anterior"
           >
             <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -103,14 +103,14 @@ export default function HeatmapView({ sessions }) {
           
           <button
             onClick={goToToday}
-            className="px-3 py-1.5 text-sm font-semibold text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="px-3 py-1.5 text-sm font-semibold text-gray-900 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-1 text-center"
           >
             {format(selectedMonth, "MMMM 'de' yyyy", { locale: ptBR })}
           </button>
           
           <button
             onClick={goToNextMonth}
-            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
             aria-label="Próximo mês"
           >
             <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />

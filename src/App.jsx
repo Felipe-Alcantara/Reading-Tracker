@@ -171,7 +171,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Header 
         onToggleHistory={() => setShowHistory(!showHistory)} 
         isHistoryOpen={showHistory}
@@ -184,7 +184,7 @@ function App() {
         <Dashboard sessions={sessions} onAddSession={handleAddSession} />
         
         {/* Layout em Grid: 3 colunas */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 mt-6">
           
           {/* Coluna 1: Heatmap */}
           <div className="lg:col-span-1">
@@ -198,14 +198,14 @@ function App() {
 
           {/* Coluna 3: Histórico de Sessões */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 h-[600px] flex flex-col overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 h-[600px] flex flex-col overflow-hidden">
               <SessionList sessions={sessions} onDelete={handleDeleteSession} onUpdate={handleUpdateSession} />
             </div>
           </div>
         </div>
 
         {/* Data Management - Linha abaixo */}
-        <div className="mt-6 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="mt-6 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
             <Database className="w-5 h-5 text-brand-600 dark:text-brand-500" />
             Gerenciamento de Dados
