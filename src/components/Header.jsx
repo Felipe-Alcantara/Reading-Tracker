@@ -1,7 +1,7 @@
 import React from 'react';
-import { BookOpen, History, Moon, Sun } from 'lucide-react';
+import { BookOpen, Moon, Sun } from 'lucide-react';
 
-export default function Header({ onToggleHistory, isHistoryOpen, darkMode, onToggleDarkMode }) {
+export default function Header({ darkMode, onToggleDarkMode }) {
   return (
     <header className="bg-brand-600 dark:bg-gray-900 text-white p-4 shadow-md sticky top-0 z-20">
       <div className="container mx-auto flex items-center justify-between">
@@ -17,15 +17,6 @@ export default function Header({ onToggleHistory, isHistoryOpen, darkMode, onTog
             title={darkMode ? 'Tema Claro' : 'Tema Escuro'}
           >
             {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </button>
-          
-          <button 
-            onClick={onToggleHistory}
-            className={`p-2 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium ${isHistoryOpen ? 'bg-brand-700 dark:bg-gray-800 text-white' : 'hover:bg-brand-500 dark:hover:bg-gray-800 text-brand-100'}`}
-            title="Ver Histórico"
-          >
-            <History className="w-5 h-5" />
-            <span className="hidden sm:inline">Histórico</span>
           </button>
         </div>
       </div>

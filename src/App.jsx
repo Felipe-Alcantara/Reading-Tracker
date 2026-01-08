@@ -16,7 +16,6 @@ import { generateSampleData } from './data/sample-data';
 function App() {
   const [sessions, setSessions] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -173,8 +172,6 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Header 
-        onToggleHistory={() => setShowHistory(!showHistory)} 
-        isHistoryOpen={showHistory}
         darkMode={darkMode}
         onToggleDarkMode={toggleDarkMode}
       />

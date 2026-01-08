@@ -1,16 +1,32 @@
-import React from 'react';
-import { TrendingUp, Book, Clock, Calendar, PlusCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { TrendingUp, Book, Clock, Calendar, PlusCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { format, addMonths, subMonths, isSameMonth, parseISO, startOfMonth } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { formatDuration } from '../utils';
 
 export default function Dashboard({ sessions, onAddSession }) {
-  const totalPages = sessions.reduce((acc, s) => acc + (s.pages || 0), 0);
-  const totalMinutes = sessions.reduce((acc, s) => acc + (s.duration_min || 0), 0);
-  
-  // Calculate average pages per minute (global) - só para sessões com ambos os valores
+  const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date()));
+
+  // Filtragem Mensal
+  const monthlySessions = sessions.filter(s => {
+    // Garante compatibilidade se a data for string ou objeto Date
+    const sDate = typeof s.date === 'string' ? parseISO(s.date) : s.date;
+    return isSameMonth(sDate, currentMonth);
+  });
+
+  // Métricas do Mês selecionado
+  const monthTotalPages = monthlySessions.reduce((acc, s) => acc + (s.pages || 0), 0);
+  const monthTotalMinutes = monthlySessions.reduce((acc, s) => acc + (s.duration_min || 0), 0);
+  const monthSessionsCount = monthlySessions.length;
+
+  // Métricas Globais (Velocidade)
   const sessionsWithBoth = sessions.filter(s => s.pages && s.duration_min);
-  const avgPpm = sessionsWithBoth.length > 0 
-    ? (sessionsWithBoth.reduce((acc, s) => acc + s.pages, 0) / sessionsWithBoth.reduce((acc, s) => acc + s.duration_min, 0)).toFixed(1) 
+  const globalAvgPpm = sessionsWithBoth.length > 0
+    ? (sessionsWithBoth.reduce((acc, s) => acc + s.pages, 0) / sessionsWithBoth.reduce((acc, s) => acc + s.duration_min, 0)).toFixed(1)
     : 0;
+
+  const handlePrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
+  const handleNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
 
   const StatCard = ({ icon: Icon, label, value, subtext, color }) => (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow flex flex-col">
@@ -25,30 +41,52 @@ export default function Dashboard({ sessions, onAddSession }) {
 
   return (
     <div className="mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-gray-800 dark:text-white">Resumo do Mês</h2>
+        
+        <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <button 
+            onClick={handlePrevMonth}
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md text-gray-600 dark:text-gray-400 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <span className="text-sm font-medium text-gray-900 dark:text-gray-200 min-w-[140px] text-center capitalize">
+            {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
+          </span>
+          <button 
+            onClick={handleNextMonth}
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md text-gray-600 dark:text-gray-400 transition-colors"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <StatCard 
           icon={Book} 
-          label="Total Páginas" 
-          value={totalPages} 
+          label="Páginas (Mês)" 
+          value={monthTotalPages} 
           color="bg-blue-500"
         />
         <StatCard 
           icon={Clock} 
-          label="Tempo Total" 
-          value={formatDuration(totalMinutes)} 
+          label="Tempo (Mês)" 
+          value={formatDuration(monthTotalMinutes)} 
           color="bg-purple-500"
         />
         <StatCard 
           icon={TrendingUp} 
-          label="Velocidade" 
-          value={avgPpm} 
+          label="Velocidade (Geral)" 
+          value={globalAvgPpm} 
           subtext="páginas / min"
           color="bg-orange-500"
         />
         <StatCard 
           icon={Calendar} 
-          label="Sessões" 
-          value={sessions.length} 
+          label="Sessões (Mês)" 
+          value={monthSessionsCount} 
           color="bg-brand-500"
         />
       </div>
