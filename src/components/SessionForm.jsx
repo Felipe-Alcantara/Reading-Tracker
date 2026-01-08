@@ -1,45 +1,92 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Save, X } from 'lucide-react';
-import { formatDuration } from '../utils';
 
-export default function SessionForm({ sessionData, onSave, onCancel, availableBooks = [], selectedBook = '' }) {
-  const [pages, setPages] = useState('');
+export default function SessionForm({ onSave, onCancel, availableBooks = [], selectedBook = '' }) {
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [book, setBook] = useState(selectedBook);
+  const [startPage, setStartPage] = useState('');
+  const [endPage, setEndPage] = useState('');
+  const [duration, setDuration] = useState('');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
+  const [pagesRead, setPagesRead] = useState(0);
+
+  // Calcula páginas lidas automaticamente
+  useEffect(() => {
+    const start = parseInt(startPage, 10);
+    const end = parseInt(endPage, 10);
+    
+    if (!isNaN(start) && !isNaN(end)) {
+      setPagesRead(end - start);
+    } else {
+      setPagesRead(0);
+    }
+  }, [startPage, endPage]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const pagesNum = parseInt(pages, 10);
-    
-    if (!pagesNum || pagesNum <= 0) {
-      setError('Por favor, insira um número válido de páginas.');
+    setError('');
+
+    // Validação mínima: pelo menos o livro deve ser informado
+    if (!book.trim()) {
+      setError('Por favor, informe pelo menos o nome do livro.');
       return;
     }
 
-    if (!book.trim()) {
-      setError('Escolha ou digite o nome do livro.');
-      return;
+    const start = parseInt(startPage, 10);
+    const end = parseInt(endPage, 10);
+    const durationNum = parseInt(duration, 10);
+
+    // Validação de intervalo de páginas apenas se ambos forem preenchidos
+    if (startPage !== '' && endPage !== '') {
+        if (isNaN(start) || isNaN(end)) {
+            setError('As páginas devem ser números.');
+            return;
+        }
+
+        if (end <= start) {
+            setError('A página final deve ser maior que a inicial.');
+            return;
+        }
     }
 
     onSave({
-      pages: pagesNum,
+      date: date || undefined,
       book: book.trim(),
-      notes
+      startPage: startPage !== '' ? start : undefined,
+      endPage: endPage !== '' ? end : undefined,
+      duration_min: durationNum > 0 ? durationNum : undefined,
+      pages: pagesRead > 0 ? pagesRead : undefined, 
+      notes: notes.trim() || undefined
     });
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="bg-brand-50 dark:bg-gray-900 p-6 border-b border-brand-100 dark:border-gray-700">
-          <h2 className="text-xl font-bold text-brand-900 dark:text-white">Resumo da Sessão</h2>
-          <p className="text-brand-700 dark:text-gray-300 mt-1">
-            Você leu por <span className="font-bold">{formatDuration(sessionData.duration_min)}</span>
-          </p>
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="bg-brand-50 dark:bg-gray-900 p-6 border-b border-brand-100 dark:border-gray-700 flex justify-between items-center">
+          <h2 className="text-xl font-bold text-brand-900 dark:text-white">Registrar Leitura</h2>
+          <button onClick={onCancel} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            <X size={24} />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+          
+          {/* Data */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Data da Sessão (opcional)
+            </label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+          </div>
+
+          {/* Livro */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Livro
@@ -48,8 +95,7 @@ export default function SessionForm({ sessionData, onSave, onCancel, availableBo
               list="books-list"
               value={book}
               onChange={(e) => setBook(e.target.value)}
-              disabled={!!selectedBook}
-              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               placeholder="Digite ou selecione o livro"
             />
             <datalist id="books-list">
@@ -59,34 +105,76 @@ export default function SessionForm({ sessionData, onSave, onCancel, availableBo
             </datalist>
           </div>
 
+          {/* Páginas (Grid) */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Página Inicial (opcional)
+              </label>
+              <input
+                type="number"
+                value={startPage}
+                onChange={(e) => setStartPage(e.target.value)}
+                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="Ex: 10"
+                min="0"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Página Final (opcional)
+              </label>
+              <input
+                type="number"
+                value={endPage}
+                onChange={(e) => setEndPage(e.target.value)}
+                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="Ex: 25"
+                min="0"
+              />
+            </div>
+          </div>
+
+          {/* Resultado Páginas Lidas */}
+          {pagesRead > 0 && (
+             <div className="text-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                   Total de páginas lidas: <span className="font-bold text-brand-600 dark:text-brand-400 text-lg">{pagesRead}</span>
+                </p>
+             </div>
+          )}
+
+          {/* Tempo de Leitura */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Quantas páginas você leu?
+              Tempo de Leitura - minutos (opcional)
             </label>
             <input
               type="number"
-              value={pages}
-              onChange={(e) => setPages(e.target.value)}
-              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Ex: 15"
-              autoFocus
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              placeholder="Ex: 30"
+              min="1"
             />
-            {error && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{error}</p>}
           </div>
 
+          {/* Comentários */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Notas (opcional)
+              Comentários (opcional)
             </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none resize-none h-24 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="O que você achou da leitura hoje?"
+              placeholder="O que achou da leitura?"
             />
           </div>
 
-          <div className="flex gap-3 pt-2">
+          {error && <p className="text-red-500 dark:text-red-400 text-sm font-medium">{error}</p>}
+
+          <div className="flex gap-3 pt-4">
             <button
               type="button"
               onClick={onCancel}
@@ -98,8 +186,8 @@ export default function SessionForm({ sessionData, onSave, onCancel, availableBo
               type="submit"
               className="flex-1 py-3 px-4 bg-brand-600 text-white font-bold rounded-lg hover:bg-brand-700 transition-colors flex items-center justify-center gap-2"
             >
-              <Save className="w-5 h-5" />
-              Salvar
+              <Save size={20} />
+              Salvar Sessão
             </button>
           </div>
         </form>

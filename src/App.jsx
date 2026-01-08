@@ -4,27 +4,20 @@ import { format } from 'date-fns';
 import { Download, Upload, Trash2, Database } from 'lucide-react';
 
 import Header from './components/Header';
-import SessionTimer from './components/SessionTimer';
 import SessionForm from './components/SessionForm';
 import HeatmapView from './components/HeatmapView';
 import Dashboard from './components/Dashboard';
 import SessionList from './components/SessionList';
 import BookStats from './components/BookStats';
-import BookSelector from './components/BookSelector';
 import { StorageService } from './services/StorageService';
-import { calculateDuration, calculatePagesPerMin } from './utils';
+import { calculatePagesPerMin } from './utils';
 import { generateSampleData } from './data/sample-data';
 
 function App() {
   const [sessions, setSessions] = useState([]);
-  const [isRecording, setIsRecording] = useState(false);
-  const [currentSessionStart, setCurrentSessionStart] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [pendingSession, setPendingSession] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [showBookSelector, setShowBookSelector] = useState(false);
-  const [currentBook, setCurrentBook] = useState(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -39,47 +32,29 @@ function App() {
     }
   }, []);
 
-  const handleStart = () => {
-    setShowBookSelector(true);
-  };
-
-  const handleBookSelected = (book) => {
-    setCurrentBook(book);
-    setShowBookSelector(false);
-    setIsRecording(true);
-    setCurrentSessionStart(new Date().toISOString());
-  };
-
-  const handleCancelBookSelection = () => {
-    setShowBookSelector(false);
-  };
-
-  const handleStop = () => {
-    const end = new Date().toISOString();
-    const duration = calculateDuration(currentSessionStart, end);
-    
-    setPendingSession({
-      start: currentSessionStart,
-      end: end,
-      duration_min: duration
-    });
-    
-    setIsRecording(false);
+  const handleAddSession = () => {
     setShowForm(true);
   };
 
   const handleSaveSession = (formData) => {
-    const { pages, notes, book } = formData;
-    const { start, end, duration_min } = pendingSession;
+    const { date, book, startPage, endPage, duration_min, pages, notes } = formData;
+    
+    // Usa a data fornecida ou a data atual
+    const sessionDate = date || new Date().toISOString().split('T')[0];
+    const start = new Date(sessionDate);
+    start.setHours(12, 0, 0, 0);
+    const startIso = start.toISOString();
 
     const newSession = {
       id: uuidv4(),
-      date: format(new Date(start), 'yyyy-MM-dd'),
-      start,
-      end,
+      date: sessionDate,
+      start: startIso, 
+      end: startIso,
       duration_min,
       pages,
-      pagesPerMin: calculatePagesPerMin(pages, duration_min),
+      startPage,
+      endPage,
+      pagesPerMin: (pages && duration_min) ? calculatePagesPerMin(pages, duration_min) : undefined,
       book,
       notes
     };
@@ -89,9 +64,6 @@ function App() {
     if (result.success) {
       setSessions(result.data);
       setShowForm(false);
-      setPendingSession(null);
-      setCurrentSessionStart(null);
-      setCurrentBook(null);
     } else {
       if (result.error === 'STORAGE_FULL') {
         alert('Atenção: O armazenamento do navegador está cheio!\n\nPor favor, use a opção "Exportar Backup" para salvar seus dados e depois "Limpar tudo" para liberar espaço.');
@@ -103,9 +75,6 @@ function App() {
 
   const handleCancelSession = () => {
     setShowForm(false);
-    setPendingSession(null);
-    setCurrentSessionStart(null);
-    setCurrentBook(null);
   };
 
   const loadSampleData = () => {
@@ -176,9 +145,8 @@ function App() {
 
   const handleDeleteSession = (sessionId) => {
     if (confirm('Tem certeza que deseja excluir esta sessão?')) {
-      // Implement delete in StorageService ideally, but for now direct update
       const newSessions = sessions.filter(s => s.id !== sessionId);
-      StorageService.importData(newSessions); // Re-save all (inefficient but works for local storage)
+      StorageService.importData(newSessions); 
       setSessions(newSessions);
     }
   };
@@ -214,14 +182,8 @@ function App() {
       <div className="flex-1 flex overflow-hidden relative">
         <main className={`flex-1 overflow-y-auto transition-all duration-300 ${showHistory ? 'mr-0' : ''}`}>
            <div className="container mx-auto px-4 py-6 max-w-2xl">
-            <SessionTimer 
-              isRecording={isRecording} 
-              startTime={currentSessionStart}
-              onStart={handleStart}
-              onStop={handleStop}
-            />
-
-            <Dashboard sessions={sessions} />
+            
+            <Dashboard sessions={sessions} onAddSession={handleAddSession} />
             
             <HeatmapView sessions={sessions} />
 
@@ -286,21 +248,11 @@ function App() {
         </aside>
       </div>
 
-      {showBookSelector && (
-        <BookSelector
-          availableBooks={availableBooks}
-          onSelect={handleBookSelected}
-          onCancel={handleCancelBookSelection}
-        />
-      )}
-
-      {showForm && pendingSession && (
+      {showForm && (
         <SessionForm 
-          sessionData={pendingSession}
           onSave={handleSaveSession}
           onCancel={handleCancelSession}
           availableBooks={availableBooks}
-          selectedBook={currentBook}
         />
       )}
     </div>

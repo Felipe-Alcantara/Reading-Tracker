@@ -56,33 +56,46 @@ export default function SessionList({ sessions, onDelete, onUpdate }) {
                 <Calendar className="w-4 h-4" />
                 <span>{format(new Date(session.start), 'dd/MM/yyyy')}</span>
               </div>
-              <div className="flex items-center gap-1 text-xs font-medium px-2 py-1 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-400 rounded-full">
-                {session.pagesPerMin || 0} pág/min
-              </div>
+              {(session.pagesPerMin && session.pagesPerMin > 0) && (
+                <div className="flex items-center gap-1 text-xs font-medium px-2 py-1 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-400 rounded-full">
+                  {session.pagesPerMin.toFixed(2)} pág/min
+                </div>
+              )}
             </div>
 
-            <div className="text-sm text-gray-700 dark:text-gray-200 mb-2 font-semibold">{session.book || 'Livro não informado'}</div>
+            <div className="mb-2">
+              <div className="text-sm text-gray-700 dark:text-gray-200 font-semibold">{session.book || 'Livro não informado'}</div>
+              {(session.startPage !== undefined && session.endPage !== undefined) && (
+                <div className="text-xs text-brand-600 dark:text-brand-400 font-medium mt-0.5">
+                  pág. {session.startPage} - {session.endPage}
+                </div>
+              )}
+            </div>
 
             <div className="grid grid-cols-2 gap-3 mb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
-                  <BookOpen className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+              {session.pages > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+                    <BookOpen className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{session.pages}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Páginas</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm font-semibold text-gray-900 dark:text-white">{session.pages}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Páginas</div>
-                </div>
-              </div>
+              )}
 
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center">
-                  <Clock className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+              {session.duration_min > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center">
+                    <Clock className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{formatDuration(session.duration_min)}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Tempo</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm font-semibold text-gray-900 dark:text-white">{formatDuration(session.duration_min)}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Tempo</div>
-                </div>
-              </div>
+              )}
             </div>
 
             {editingId === session.id ? (
