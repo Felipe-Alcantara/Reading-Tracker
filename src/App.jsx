@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
-import { Download, Upload, Trash2, Database } from 'lucide-react';
+import { Download, Upload, Trash2, Database, HelpCircle } from 'lucide-react';
 
 import Header from './components/Header';
 import SessionForm from './components/SessionForm';
@@ -9,6 +9,8 @@ import HeatmapView from './components/HeatmapView';
 import Dashboard from './components/Dashboard';
 import SessionList from './components/SessionList';
 import BookStats from './components/BookStats';
+import HelpModal from './components/HelpModal';
+import OnboardingTooltip from './components/OnboardingTooltip';
 import { StorageService } from './services/StorageService';
 import { calculatePagesPerMin } from './utils';
 import { generateSampleData } from './data/sample-data';
@@ -17,6 +19,8 @@ function App() {
   const [sessions, setSessions] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -28,6 +32,12 @@ function App() {
     setDarkMode(savedDarkMode);
     if (savedDarkMode) {
       document.documentElement.classList.add('dark');
+    }
+
+    // Check if it's first visit
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
     }
   }, []);
 
@@ -295,6 +305,27 @@ function App() {
           onSave={handleSaveSession}
           onCancel={handleCancelSession}
           availableBooks={availableBooks}
+        />
+      )}
+
+      {/* Botão de Ajuda - FAB acima do botão de adicionar */}
+      <button
+        onClick={() => setShowHelp(true)}
+        className="fixed bottom-32 right-6 z-30 w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-xl flex items-center justify-center transition-all transform hover:scale-110 active:scale-95 group"
+        aria-label="Ajuda e Tutorial"
+        title="Ajuda e Tutorial"
+      >
+        <HelpCircle className="w-8 h-8 group-hover:rotate-12 transition-transform" />
+      </button>
+
+      <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
+      
+      {showOnboarding && (
+        <OnboardingTooltip 
+          onClose={() => {
+            setShowOnboarding(false);
+            localStorage.setItem('hasSeenOnboarding', 'true');
+          }} 
         />
       )}
     </div>
