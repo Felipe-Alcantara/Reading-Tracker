@@ -41,5 +41,22 @@ export const generateSampleData = () => {
       sessions.push(generateRandomSession(i));
     }
   }
+
+  // Sort by date (oldest first) to assign page numbers sequentially
+  sessions.sort((a, b) => new Date(a.start) - new Date(b.start));
+
+  const bookProgress = {};
+  
+  sessions.forEach(session => {
+    const currentStart = bookProgress[session.book] || 1;
+    const currentEnd = currentStart + session.pages;
+    
+    session.startPage = currentStart;
+    session.endPage = currentEnd;
+    
+    bookProgress[session.book] = currentEnd;
+  });
+
+  // Return sorted newest first
   return sessions.sort((a, b) => new Date(b.start) - new Date(a.start));
 };

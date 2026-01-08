@@ -305,6 +305,7 @@ function App() {
           onSave={handleSaveSession}
           onCancel={handleCancelSession}
           availableBooks={availableBooks}
+          sessions={sessions}
         />
       )}
 

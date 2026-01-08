@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Save, X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Save, X, ChevronDown, Book } from 'lucide-react';
 
-export default function SessionForm({ onSave, onCancel, availableBooks = [], selectedBook = '' }) {
+export default function SessionForm({ onSave, onCancel, availableBooks = [], selectedBook = '', sessions = [] }) {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [book, setBook] = useState(selectedBook);
   const [startPage, setStartPage] = useState('');
@@ -10,6 +10,59 @@ export default function SessionForm({ onSave, onCancel, availableBooks = [], sel
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
   const [pagesRead, setPagesRead] = useState(0);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [filteredBooks, setFilteredBooks] = useState(availableBooks);
+  const [isTyping, setIsTyping] = useState(false);
+  const dropdownRef = useRef(null);
+  const inputRef = useRef(null);
+
+  // Busca a última página lida quando o livro é selecionado
+  useEffect(() => {
+    const cleanBook = book.trim().toLowerCase();
+    
+    if (cleanBook) {
+      // Filtra sessões do livro selecionado que têm página final
+      const bookSessions = sessions
+        .filter(s => {
+          const sBook = (s.book || '').toLowerCase().trim();
+          return sBook === cleanBook && s.endPage !== undefined && s.endPage !== null && s.endPage !== '';
+        })
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      if (bookSessions.length > 0) {
+        // Pega a última página lida da sessão mais recente
+        const lastPage = bookSessions[0].endPage;
+        setStartPage(lastPage.toString());
+      } else {
+        // Se for a primeira sessão do livro, começa da página 1
+        setStartPage('1');
+      }
+    }
+  }, [book, sessions]);
+
+  // Filtra livros baseado no input apenas quando está digitando
+  useEffect(() => {
+    if (isTyping && book) {
+      const filtered = availableBooks.filter(b => 
+        b.toLowerCase().includes(book.toLowerCase())
+      );
+      setFilteredBooks(filtered);
+    } else {
+      // Mostra todos os livros quando não está digitando
+      setFilteredBooks(availableBooks);
+    }
+  }, [book, availableBooks, isTyping]);
+
+  // Fecha dropdown ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Calcula páginas lidas automaticamente
   useEffect(() => {
@@ -96,22 +149,59 @@ export default function SessionForm({ onSave, onCancel, availableBooks = [], sel
           </div>
 
           {/* Livro */}
-          <div>
+          <div className="relative" ref={dropdownRef}>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Livro
             </label>
-            <input
-              list="books-list"
-              value={book}
-              onChange={(e) => setBook(e.target.value)}
-              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Digite ou selecione o livro"
-            />
-            <datalist id="books-list">
-              {availableBooks.map((name) => (
-                <option key={name} value={name} />
-              ))}
-            </datalist>
+            <div className="relative">
+              <input
+                ref={inputRef}
+                type="text"
+                value={book}
+                onChange={(e) => {
+                  setBook(e.target.value);
+                  setIsTyping(true);
+                  setShowDropdown(true);
+                }}
+                onFocus={() => {
+                  setIsTyping(false);
+                  setShowDropdown(true);
+                }}
+                className="w-full p-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
+                placeholder="Digite ou selecione o livro"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setIsTyping(false);
+                  setShowDropdown(!showDropdown);
+                  inputRef.current?.focus();
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+              >
+                <ChevronDown size={20} className={`transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+            
+            {/* Dropdown Customizado */}
+            {showDropdown && filteredBooks.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                {filteredBooks.map((bookName) => (
+                  <button
+                    key={bookName}
+                    type="button"
+                    onClick={() => {
+                      setBook(bookName);
+                      setShowDropdown(false);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-brand-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white transition-colors flex items-center gap-2 group"
+                  >
+                    <Book size={16} className="text-gray-400 dark:text-gray-500 group-hover:text-brand-600 dark:group-hover:text-brand-400" />
+                    <span>{bookName}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Páginas (Grid) */}
