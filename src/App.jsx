@@ -171,7 +171,7 @@ function App() {
   };
 
   return (
-    <div className="h-[100dvh] bg-gray-50 dark:bg-gray-900 flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header 
         onToggleHistory={() => setShowHistory(!showHistory)} 
         isHistoryOpen={showHistory}
@@ -179,74 +179,81 @@ function App() {
         onToggleDarkMode={toggleDarkMode}
       />
       
-      <div className="flex-1 flex overflow-hidden relative">
-        <main className={`flex-1 overflow-y-auto transition-all duration-300 ${showHistory ? 'mr-0' : ''}`}>
-           <div className="container mx-auto px-4 py-6 max-w-2xl">
-            
-            <Dashboard sessions={sessions} onAddSession={handleAddSession} />
-            
+      <main className="container mx-auto px-6 py-6 max-w-[1600px]">
+        {/* Dashboard Cards no Topo */}
+        <Dashboard sessions={sessions} onAddSession={handleAddSession} />
+        
+        {/* Layout em Grid: 3 colunas */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+          
+          {/* Coluna 1: Heatmap */}
+          <div className="lg:col-span-1">
             <HeatmapView sessions={sessions} />
+          </div>
 
+          {/* Coluna 2: Estatísticas por Livro */}
+          <div className="lg:col-span-1">
             <BookStats sessions={sessions} />
+          </div>
 
-            {/* Data Management */}
-            <div className="mt-12 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                    <Database className="w-5 h-5 text-brand-600 dark:text-brand-500" />
-                    Gerenciamento de Dados
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                    <button 
-                        onClick={handleExport}
-                        className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
-                    >
-                        <Download className="w-4 h-4" />
-                        Exportar Backup (JSON)
-                    </button>
-                    
-                    <button 
-                        onClick={triggerImport}
-                        className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
-                    >
-                        <Upload className="w-4 h-4" />
-                        Importar Backup
-                    </button>
-                    <input 
-                        type="file" 
-                        ref={fileInputRef}
-                        onChange={handleImport}
-                        className="hidden"
-                        accept=".json"
-                    />
-                </div>
-
-                <div className="border-t border-gray-100 dark:border-gray-700 pt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <button 
-                        onClick={loadSampleData}
-                        className="text-sm text-brand-600 dark:text-brand-500 hover:text-brand-700 dark:hover:text-brand-400 underline"
-                    >
-                        Carregar dados de exemplo
-                    </button>
-
-                    <button 
-                        onClick={handleClearData}
-                        className="flex items-center gap-1 text-sm text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-500 px-3 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                        Limpar tudo
-                    </button>
-                </div>
+          {/* Coluna 3: Histórico de Sessões */}
+          <div className="lg:col-span-1">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 h-[600px] flex flex-col overflow-hidden">
+              <SessionList sessions={sessions} onDelete={handleDeleteSession} onUpdate={handleUpdateSession} />
             </div>
-           </div>
-        </main>
+          </div>
+        </div>
 
-        <aside className={`transition-all duration-300 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 shadow-xl z-20 ${showHistory ? 'w-80 sm:w-96 translate-x-0' : 'w-0 translate-x-full opacity-0'}`}>
-             <div className="w-80 sm:w-96 h-full overflow-hidden">
-                <SessionList sessions={sessions} onDelete={handleDeleteSession} onUpdate={handleUpdateSession} />
-             </div>
-        </aside>
-      </div>
+        {/* Data Management - Linha abaixo */}
+        <div className="mt-6 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <Database className="w-5 h-5 text-brand-600 dark:text-brand-500" />
+            Gerenciamento de Dados
+          </h3>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <button 
+              onClick={handleExport}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
+            >
+              <Download className="w-4 h-4" />
+              Exportar Backup (JSON)
+            </button>
+            
+            <button 
+              onClick={triggerImport}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
+            >
+              <Upload className="w-4 h-4" />
+              Importar Backup
+            </button>
+
+            <button 
+              onClick={loadSampleData}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
+            >
+              <Database className="w-4 h-4" />
+              Dados de Exemplo
+            </button>
+
+            <button 
+              onClick={handleClearData}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg transition-colors border border-red-200 dark:border-red-900/30"
+            >
+              <Trash2 className="w-4 h-4" />
+              Limpar Tudo
+            </button>
+
+            <input 
+              type="file" 
+              ref={fileInputRef}
+              onChange={handleImport}
+              className="hidden"
+              accept=".json"
+            />
+          </div>
+        </div>
+      </main>
 
       {showForm && (
         <SessionForm 

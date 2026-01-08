@@ -14,7 +14,7 @@ export default function HeatmapView({ sessions }) {
   const startDate = subDays(today, 120);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 overflow-hidden h-[600px] flex flex-col">
       <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Consistência de Leitura</h3>
       
       <div className="w-full overflow-x-auto">
@@ -44,7 +44,7 @@ export default function HeatmapView({ sessions }) {
       </div>
       <Tooltip id="heatmap-tooltip" />
       
-      <div className="flex items-center justify-end gap-2 mt-4 text-xs text-gray-500">
+      <div className="flex items-center justify-end gap-2 mt-auto pt-4 text-xs text-gray-500">
         <span>Menos</span>
         <div className="flex gap-1">
           <div className="w-3 h-3 rounded-sm bg-[#ebedf0]"></div>
